@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ระบบพิมพ์ซองจดหมาย · ซีอีโอ แฟคตอรี่ (ไทยแลนด์)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF8F3;
+    --paper-2:#F1EDE3;
+    --ink:#22283B;
+    --ink-soft:#5B6178;
+    --line:#D8D2C2;
+    --stamp-red:#B8433A;
+    --stamp-blue:#2A4B7C;
+    --accent:#B8433A;
+    --ok:#3E7B5C;
+    --danger:#B8433A;
+    --radius:2px;
+    --shadow: 0 1px 2px rgba(34,40,59,0.06), 0 8px 24px rgba(34,40,59,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-2);
+    color:var(--ink);
+    font-family:'Sarabun',sans-serif;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+  }
+  .airmail-strip{
+    height:8px;
+    width:100%;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--stamp-red) 0 18px,
+      var(--paper) 18px 26px,
+      var(--stamp-blue) 26px 44px,
+      var(--paper) 44px 52px
+    );
+  }
+  header.top{
+    padding:28px 32px 20px;
+    max-width:1240px;
+    margin:0 auto;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  header.top h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  header.top .sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.3px;
+  }
+  .wrap{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 32px 80px;
+    display:grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap:28px;
+  }
+  @media (max-width: 980px){
+    .wrap{grid-template-columns:1fr;}
+  }
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .card + .card{margin-top:20px;}
+  .card-head{
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .card-head h2{
+    font-size:14px;
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .card-body{padding:20px;}
+
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    font-weight:500;
+  }
+  input[type=text], textarea{
+    width:100%;
+    font-family:'Sarabun',sans-serif;
+    font-size:15px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    color:var(--ink);
+    resize:vertical;
+  }
+  textarea{min-height:76px; line-height:1.5;}
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--stamp-blue);
+    box-shadow:0 0 0 3px rgba(42,75,124,0.12);
+  }
+  .field{margin-bottom:14px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){.field-row{grid-template-columns:1fr;}}
+
+  .btn{
+    appearance:none;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:#fff;
+    font-family:'Sarabun',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:10px 18px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:transform .08s ease, opacity .15s ease;
+  }
+  .btn:hover{opacity:0.88;}
+  .btn:active{transform:translateY(1px);}
+  .btn.secondary{
+    background:transparent;
+    color:var(--ink);
+    border-color:var(--line);
+  }
+  .btn.danger{
+    background:transparent;
+    color:var(--danger);
+    border-color:var(--danger);
+  }
+  .btn.block{width:100%;}
+  .btn[disabled]{opacity:0.45; cursor:not-allowed;}
+  .btn-row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+
+  .search-box{position:relative; margin-bottom:14px;}
+  .search-box input{padding-left:34px;}
+  .search-box::before{
+    content:"⌕";
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color:var(--ink-soft); font-size:16px;
+  }
+
+  .list{
+    max-height:420px;
+    overflow-y:auto;
+    border-top:1px solid var(--line);
+  }
+  .list-item{
+    padding:12px 20px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .list-item:hover{background:var(--paper-2);}
+  .list-item.selected{
+    background:#EFE6DF;
+    box-shadow: inset 3px 0 0 var(--stamp-red);
+  }
+  .li-main .name{font-weight:600; font-size:14.5px;}
+  .li-main .addr{font-size:12.5px; color:var(--ink-soft); margin-top:2px; white-space:pre-line; line-height:1.4;}
+  .li-actions{display:flex; gap:6px; flex-shrink:0;}
+  .icon-btn{
+    border:none; background:none; cursor:pointer;
+    color:var(--ink-soft); font-size:16px; padding:2px 5px; border-radius:2px;
+  }
+  .icon-btn:hover{color:var(--ink); background:var(--line);}
+  .empty-state{
+    padding:28px 20px; text-align:center; color:var(--ink-soft); font-size:13.5px;
+  }
+
+  .status-line{font-size:12.5px; color:var(--ink-soft); margin-top:10px; min-height:16px;}
+  .status-line.ok{color:var(--ok);}
+  .status-line.err{color:var(--danger);}
+
+  details.settings summary{
+    cursor:pointer; font-size:13px; color:var(--ink-soft); padding:14px 20px;
+    list-style:none; display:flex; align-items:center; gap:8px;
+  }
+  details.settings summary::-webkit-details-marker{display:none;}
+  details.settings summary::before{content:"⚙"; font-size:14px;}
+  details.settings[open] summary{border-bottom:1px solid var(--line);}
+  .settings-body{padding:16px 20px;}
+  .settings-note{font-size:12px; color:var(--ink-soft); line-height:1.5; margin-top:8px;}
+
+  /* ---------- envelope preview ---------- */
+  .preview-outer{
+    position:sticky;
+    top:20px;
+  }
+  .envelope-stage{
+    padding:26px 20px 30px;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .envelope-scale-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+    margin-bottom:14px;
+  }
+  .envelope{
+    width:100%;
+    max-width:600px;
+    aspect-ratio: 23.5 / 11;
+    background:#FFFDF9;
+    border:1px solid #D8D2C2;
+    box-shadow:0 2px 6px rgba(34,40,59,0.10), 0 14px 30px rgba(34,40,59,0.08);
+    position:relative;
+    padding:5.5% 5% ;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .envelope::before{
+    content:"";
+    position:absolute; inset:0;
+    border: 1.5px solid transparent;
+    background-image: repeating-linear-gradient(
+      -45deg, var(--stamp-red) 0 6px, transparent 6px 12px, var(--stamp-blue) 12px 18px, transparent 18px 24px
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding:0;
+    opacity:0.9;
+  }
+  .env-sender{
+    font-size: clamp(9px, 1.35vw, 13px);
+    line-height:1.45;
+    color:var(--ink);
+    max-width:60%;
+  }
+  .env-sender .co-name{font-weight:700; font-size:1.08em;}
+  .env-top-row{display:flex; justify-content:space-between; align-items:flex-start;}
+  .env-stamp-box{
+    width: clamp(34px, 8vw, 64px);
+    height: clamp(44px, 10.5vw, 82px);
+    border:1.5px dashed var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; color:var(--ink-soft); text-align:center; flex-shrink:0;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .env-recipient{
+    align-self:flex-end;
+    max-width:72%;
+    text-align:left;
+  }
+  .env-recipient .to-label{
+    font-size: clamp(9px, 1.2vw, 12px);
+    color:var(--ink-soft);
+    letter-spacing:1px;
+    margin-bottom:3px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .env-recipient .r-name{
+    font-weight:700;
+    font-size: clamp(12px, 2.3vw, 20px);
+    line-height:1.3;
+  }
+  .env-recipient .r-addr{
+    font-size: clamp(10px, 1.7vw, 15px);
+    line-height:1.5;
+    white-space:pre-line;
+    margin-top:3px;
+  }
+  .env-recipient .r-phone{
+    font-size: clamp(9.5px, 1.5vw, 13px);
+    margin-top:4px;
+    color:var(--ink-soft);
+  }
+  .env-placeholder{
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size: clamp(11px, 1.8vw, 15px);
+  }
+
+  .preview-actions{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+    width:100%;
+    max-width:600px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    padding:20px 0 40px;
+  }
+
+  /* ---------- print ---------- */
+  @media print{
+    @page{ size: 23.5cm 11cm; margin:0; }
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #printArea{
+      position:fixed; inset:0;
+      width:23.5cm; height:11cm;
+      margin:0; padding:0;
+    }
+    .envelope{
+      width:23.5cm; height:11cm;
+      max-width:none;
+      box-shadow:none;
+      border:none;
+      padding: 1.1cm 1.3cm;
+      aspect-ratio:auto;
+    }
+    .env-sender{font-size:11pt;}
+    .env-recipient .r-name{font-size:16pt;}
+    .env-recipient .r-addr{font-size:12.5pt;}
+    .env-recipient .to-label{font-size:9.5pt;}
+    .env-stamp-box{width:2.6cm; height:3.3cm; font-size:7pt;}
+  }
+</style>
+</head>
+<body>
+
+<div class="airmail-strip"></div>
+<header class="top">
+  <h1>ระบบพิมพ์ซองจดหมาย</h1>
+  <div class="sub">CEO FACTORY (THAILAND) CO., LTD. — ENVELOPE 11×23.5cm</div>
+</header>
+
+<div class="wrap">
+
+  <!-- LEFT: form + list -->
+  <div>
+    <div class="card">
+      <div class="card-head">
+        <h2 id="formTitle">เพิ่มที่อยู่ผู้รับใหม่</h2>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label for="fName">ชื่อผู้รับ / บริษัท</label>
+          <input type="text" id="fName" placeholder="เช่น คุณสมชาย ใจดี หรือ บริษัท เอบีซี จำกัด">
+        </div>
+        <div class="field">
+          <label for="fAddress">ที่อยู่ผู้รับ (ขึ้นบรรทัดใหม่ได้)</label>
+          <textarea id="fAddress" placeholder="เลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fPhone">เบอร์โทร (ไม่บังคับ)</label>
+            <input type="text" id="fPhone" placeholder="08x-xxx-xxxx">
+          </div>
+          <div class="field">
+            <label for="fNote">หมายเหตุ (ไม่บังคับ)</label>
+            <input type="text" id="fNote" placeholder="เช่น ลูกค้าประจำ">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btnSave">บันทึกที่อยู่</button>
+          <button class="btn secondary" id="btnClear">ล้างฟอร์ม</button>
+          <button class="btn secondary" id="btnCancelEdit" style="display:none;">ยกเลิกการแก้ไข</button>
+        </div>
+        <div class="status-line" id="formStatus"></div>
+      </div>
+
+      <details class="settings">
+        <summary>ตั้งค่าการเชื่อมต่อ Supabase</summary>
+        <div class="settings-body">
+          <div class="field">
+            <label for="sbUrl">Supabase Project URL</label>
+            <input type="text" id="sbUrl" placeholder="https://xxxxxxxx.supabase.co">
+          </div>
+          <div class="field">
+            <label for="sbKey">Supabase Anon Public Key</label>
+            <input type="text" id="sbKey" placeholder="eyJhbGciOi...">
+          </div>
+          <button class="btn secondary" id="btnSaveConfig">บันทึกการเชื่อมต่อ</button>
+          <div class="status-line" id="configStatus"></div>
+          <div class="settings-note">
+            ค่านี้จะถูกเก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น (localStorage) ไม่ได้ส่งไปที่อื่น<br>
+            หากยังไม่มีโปรเจกต์ Supabase ให้สร้างที่ supabase.com แล้วรันไฟล์ schema.sql ที่แนบมา จากนั้นคัดลอก Project URL และ anon public key มาใส่ที่นี่ (Settings → API)
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>สมุดที่อยู่ผู้รับ</h2>
+        <span id="countBadge" class="status-line" style="margin:0;"></span>
+      </div>
+      <div class="card-body" style="padding-bottom:0;">
+        <div class="search-box">
+          <input type="text" id="searchBox" placeholder="ค้นหาชื่อ, ที่อยู่ หรือเบอร์โทร...">
+        </div>
+      </div>
+      <div class="list" id="recipientList">
+        <div class="empty-state">ยังไม่ได้เชื่อมต่อฐานข้อมูล — เปิด "ตั้งค่าการเชื่อมต่อ Supabase" ด้านบน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: envelope preview -->
+  <div class="preview-outer">
+    <div class="card">
+      <div class="card-head">
+        <h2>ตัวอย่างซองจดหมาย</h2>
+      </div>
+      <div class="envelope-stage">
+        <div class="envelope-scale-note">ขนาดจริง 11 × 23.5 ซม. (แสดงย่อสัดส่วนจริงบนหน้าจอ)</div>
+        <div id="printArea">
+          <div class="envelope" id="envelope">
+            <div class="env-top-row">
+              <div class="env-sender">
+                <div class="co-name">บริษัท ซีอีโอ แฟคตอรี่ (ไทยแลนด์) จำกัด</div>
+                <div>88 ถ.เชื่อมมิตร ต.บ้านพรุ อ.หาดใหญ่ จ.สงขลา 90250</div>
+                <div>โทร. 09-1845-5320 · ceofactorythailand@gmail.com</div>
+              </div>
+              <div class="env-stamp-box">แสตมป์</div>
+            </div>
+            <div class="env-recipient">
+              <div class="to-label">TO</div>
+              <div id="envContent">
+                <div class="env-placeholder">เลือกที่อยู่ผู้รับจากสมุดที่อยู่ หรือกรอกฟอร์มด้านซ้ายแล้วกด "บันทึกที่อยู่"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="preview-actions">
+          <button class="btn block" id="btnPrint" disabled>พิมพ์ซองนี้</button>
+          <button class="btn secondary" id="btnUseForm">ดูตัวอย่างจากฟอร์ม</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>ระบบพิมพ์ซองจดหมาย · บริษัท ซีอีโอ แฟคตอรี่ (ไทยแลนด์) จำกัด</footer>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const els = {
+  fName: document.getElementById('fName'),
+  fAddress: document.getElementById('fAddress'),
+  fPhone: document.getElementById('fPhone'),
+  fNote: document.getElementById('fNote'),
+  btnSave: document.getElementById('btnSave'),
+  btnClear: document.getElementById('btnClear'),
+  btnCancelEdit: document.getElementById('btnCancelEdit'),
+  formStatus: document.getElementById('formStatus'),
+  formTitle: document.getElementById('formTitle'),
+  sbUrl: document.getElementById('sbUrl'),
+  sbKey: document.getElementById('sbKey'),
+  btnSaveConfig: document.getElementById('btnSaveConfig'),
+  configStatus: document.getElementById('configStatus'),
+  searchBox: document.getElementById('searchBox'),
+  recipientList: document.getElementById('recipientList'),
+  countBadge: document.getElementById('countBadge'),
+  envContent: document.getElementById('envContent'),
+  btnPrint: document.getElementById('btnPrint'),
+  btnUseForm: document.getElementById('btnUseForm'),
+};
+
+let supabase = null;
+let editingId = null;
+let allRows = [];
+let selectedId = null;
+
+// ---------- config / connection ----------
+function loadConfig(){
+  const url = localStorage.getItem('envprint_sb_url') || '';
+  const key = localStorage.getItem('envprint_sb_key') || '';
+  els.sbUrl.value = url;
+  els.sbKey.value = key;
+  if(url && key){
+    try{
+      supabase = createClient(url, key);
+      fetchRecipients();
+    }catch(e){
+      showStatus(els.configStatus, 'เชื่อมต่อไม่สำเร็จ: ' + e.message, 'err');
+    }
+  }
+}
+
+els.btnSaveConfig.addEventListener('click', () => {
+  const url = els.sbUrl.value.trim();
+  const key = els.sbKey.value.trim();
+  if(!url || !key){
+    showStatus(els.configStatus, 'กรุณากรอก URL และ Key ให้ครบ', 'err');
+    return;
+  }
+  localStorage.setItem('envprint_sb_url', url);
+  localStorage.setItem('envprint_sb_key', key);
+  try{
+    supabase = createClient(url, key);
+    showStatus(els.configStatus, 'เชื่อมต่อสำเร็จ กำลังโหลดข้อมูล...', 'ok');
+    fetchRecipients();
+  }catch(e){
+    showStatus(els.configStatus, 'เชื่อมต่อไม่สำเร็จ: ' + e.message, 'err');
+  }
+});
+
+function showStatus(el, msg, type){
+  el.textContent = msg;
+  el.className = 'status-line' + (type ? ' ' + type : '');
+  if(type === 'ok'){
+    setTimeout(() => { if(el.textContent === msg) { el.textContent=''; el.className='status-line'; } }, 3500);
+  }
+}
+
+// ---------- CRUD ----------
+async function fetchRecipients(){
+  if(!supabase) return;
+  els.recipientList.innerHTML = '<div class="empty-state">กำลังโหลด...</div>';
+  const { data, error } = await supabase
+    .from('recipients')
+    .select('*')
+    .order('created_at', { ascending:false });
+  if(error){
+    els.recipientList.innerHTML = `<div class="empty-state">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(error.message)}</div>`;
+    return;
+  }
+  allRows = data || [];
+  renderList(els.searchBox.value.trim());
+}
+
+function renderList(query){
+  const q = (query || '').toLowerCase();
+  const rows = q
+    ? allRows.filter(r =>
+        (r.name || '').toLowerCase().includes(q) ||
+        (r.address || '').toLowerCase().includes(q) ||
+        (r.phone || '').toLowerCase().includes(q))
+    : allRows;
+
+  els.countBadge.textContent = allRows.length ? `${rows.length}/${allRows.length} รายการ` : '';
+
+  if(!rows.length){
+    els.recipientList.innerHTML = `<div class="empty-state">${allRows.length ? 'ไม่พบรายการที่ค้นหา' : 'ยังไม่มีที่อยู่ผู้รับที่บันทึกไว้'}</div>`;
+    return;
+  }
+
+  els.recipientList.innerHTML = '';
+  rows.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'list-item' + (r.id === selectedId ? ' selected' : '');
+    item.innerHTML = `
+      <div class="li-main">
+        <div class="name">${escapeHtml(r.name)}</div>
+        <div class="addr">${escapeHtml(r.address)}</div>
+      </div>
+      <div class="li-actions">
+        <button class="icon-btn" data-action="edit" title="แก้ไข">✎</button>
+        <button class="icon-btn" data-action="delete" title="ลบ">✕</button>
+      </div>
+    `;
+    item.addEventListener('click', (e) => {
+      if(e.target.closest('[data-action]')) return;
+      selectRecipient(r);
+    });
+    item.querySelector('[data-action="edit"]').addEventListener('click', () => startEdit(r));
+    item.querySelector('[data-action="delete"]').addEventListener('click', () => deleteRecipient(r));
+    els.recipientList.appendChild(item);
+  });
+}
+
+els.searchBox.addEventListener('input', () => renderList(els.searchBox.value.trim()));
+
+function fieldsFromForm(){
+  return {
+    name: els.fName.value.trim(),
+    address: els.fAddress.value.trim(),
+    phone: els.fPhone.value.trim() || null,
+    note: els.fNote.value.trim() || null,
+  };
+}
+
+els.btnSave.addEventListener('click', async () => {
+  if(!supabase){
+    showStatus(els.formStatus, 'กรุณาตั้งค่าการเชื่อมต่อ Supabase ก่อน', 'err');
+    return;
+  }
+  const payload = fieldsFromForm();
+  if(!payload.name || !payload.address){
+    showStatus(els.formStatus, 'กรุณากรอกชื่อผู้รับและที่อยู่', 'err');
+    return;
+  }
+  els.btnSave.disabled = true;
+  let error;
+  if(editingId){
+    ({ error } = await supabase.from('recipients').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await supabase.from('recipients').insert(payload));
+  }
+  els.btnSave.disabled = false;
+  if(error){
+    showStatus(els.formStatus, 'บันทึกไม่สำเร็จ: ' + error.message, 'err');
+    return;
+  }
+  showStatus(els.formStatus, editingId ? 'แก้ไขข้อมูลเรียบร้อย' : 'บันทึกที่อยู่เรียบร้อย', 'ok');
+  const savedForPreview = { ...payload };
+  cancelEdit();
+  clearForm();
+  await fetchRecipients();
+  // preview the just-saved entry
+  renderEnvelope(savedForPreview);
+});
+
+function startEdit(r){
+  editingId = r.id;
+  els.fName.value = r.name || '';
+  els.fAddress.value = r.address || '';
+  els.fPhone.value = r.phone || '';
+  els.fNote.value = r.note || '';
+  els.formTitle.textContent = 'แก้ไขที่อยู่ผู้รับ';
+  els.btnCancelEdit.style.display = 'inline-block';
+  els.fName.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function cancelEdit(){
+  editingId = null;
+  els.formTitle.textContent = 'เพิ่มที่อยู่ผู้รับใหม่';
+  els.btnCancelEdit.style.display = 'none';
+}
+els.btnCancelEdit.addEventListener('click', () => { cancelEdit(); clearForm(); });
+
+function clearForm(){
+  els.fName.value = '';
+  els.fAddress.value = '';
+  els.fPhone.value = '';
+  els.fNote.value = '';
+}
+els.btnClear.addEventListener('click', () => { cancelEdit(); clearForm(); showStatus(els.formStatus,'','ok'); });
+
+async function deleteRecipient(r){
+  if(!confirm(`ลบที่อยู่ของ "${r.name}" ใช่หรือไม่?`)) return;
+  const { error } = await supabase.from('recipients').delete().eq('id', r.id);
+  if(error){
+    showStatus(els.formStatus, 'ลบไม่สำเร็จ: ' + error.message, 'err');
+    return;
+  }
+  if(selectedId === r.id){
+    selectedId = null;
+    renderEnvelopeEmpty();
+  }
+  await fetchRecipients();
+}
+
+// ---------- envelope preview ----------
+function selectRecipient(r){
+  selectedId = r.id;
+  renderList(els.searchBox.value.trim());
+  renderEnvelope(r);
+}
+
+function renderEnvelope(r){
+  els.envContent.innerHTML = `
+    <div class="r-name">${escapeHtml(r.name)}</div>
+    <div class="r-addr">${escapeHtml(r.address)}</div>
+    ${r.phone ? `<div class="r-phone">โทร. ${escapeHtml(r.phone)}</div>` : ''}
+  `;
+  els.btnPrint.disabled = false;
+}
+
+function renderEnvelopeEmpty(){
+  els.envContent.innerHTML = `<div class="env-placeholder">เลือกที่อยู่ผู้รับจากสมุดที่อยู่ หรือกรอกฟอร์มด้านซ้ายแล้วกด "บันทึกที่อยู่"</div>`;
+  els.btnPrint.disabled = true;
+}
+
+els.btnUseForm.addEventListener('click', () => {
+  const payload = fieldsFromForm();
+  if(!payload.name || !payload.address){
+    showStatus(els.formStatus, 'กรอกชื่อและที่อยู่ก่อนเพื่อดูตัวอย่าง', 'err');
+    return;
+  }
+  selectedId = null;
+  renderEnvelope(payload);
+});
+
+els.btnPrint.addEventListener('click', () => window.print());
+
+function escapeHtml(str){
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+loadConfig();
+</script>
+</body>
+</html>
