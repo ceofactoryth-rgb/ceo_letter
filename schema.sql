@@ -48,3 +48,32 @@ create policy "public access"
   for all
   using (true)
   with check (true);
+
+-- ==========================================================
+-- ตารางบันทึกประวัติการพิมพ์ (Print Log)
+-- ==========================================================
+-- บันทึก 1 แถวต่อ "ซองที่พิมพ์" 1 ใบ (พิมพ์ทีละหลายใบ = หลายแถว
+-- ที่มี print_mode='batch' และ batch_size เท่ากันทุกแถวในชุดเดียวกัน)
+create table if not exists public.print_logs (
+  id                 uuid primary key default gen_random_uuid(),
+  recipient_id       uuid references public.recipients(id) on delete set null,
+  recipient_name     text not null,
+  recipient_address  text not null,
+  recipient_phone    text,
+  print_mode         text not null default 'single',  -- 'single' หรือ 'batch'
+  batch_size         int  not null default 1,          -- จำนวนซองในชุดพิมพ์นั้น
+  printed_at         timestamptz not null default now()
+);
+
+-- index สำหรับกรองตามวันที่ให้เร็วขึ้น
+create index if not exists print_logs_printed_at_idx on public.print_logs (printed_at desc);
+
+alter table public.print_logs enable row level security;
+
+-- ใช้ policy สาธารณะแบบเดียวกับตาราง recipients (เหมาะกับ internal tool เท่านั้น)
+drop policy if exists "public access" on public.print_logs;
+create policy "public access"
+  on public.print_logs
+  for all
+  using (true)
+  with check (true);
