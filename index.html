@@ -361,7 +361,7 @@
   .envelope{
     width:100%;
     max-width:600px;
-    aspect-ratio: 22 / 11;
+    aspect-ratio: 235 / 105;
     background:#FFFFFF;
     border: 1px solid var(--line);
     box-shadow:0 4px 16px rgba(28,35,51,0.07);
@@ -387,14 +387,12 @@
   }
   .env-sender-text{min-width:0;}
   .env-sender .co-name{font-weight:700; font-size:1.08em;}
-  .env-top-row{display:flex; justify-content:space-between; align-items:flex-start; flex:0 0 auto;}
-  .env-stamp-box{
-    width: clamp(30px, 7vw, 56px);
-    height: clamp(38px, 9vw, 72px);
-    border:1.5px dashed var(--ink-faint);
-    display:flex; align-items:center; justify-content:center;
-    font-size:8px; color:var(--ink-faint); text-align:center; flex-shrink:0;
-    font-family:'JetBrains Mono',monospace;
+  .env-top-row{
+    display:flex;
+    align-items:flex-start;
+    flex:0 0 auto;
+    margin-top: clamp(-14px, -1.8vw, -6px);
+    margin-left: clamp(-14px, -1.8vw, -6px);
   }
   .env-recipient-zone{
     flex:1 1 auto;
@@ -430,6 +428,28 @@
     margin-top:4px;
     color:var(--ink-soft);
   }
+  .env-mail-options{
+    position:absolute;
+    right:4%;
+    bottom:0;
+    display:flex;
+    gap: clamp(6px, 1.2vw, 12px);
+  }
+  .mail-opt{
+    display:flex;
+    align-items:center;
+    gap: clamp(3px, 0.6vw, 5px);
+    font-size: clamp(6.5px, 0.95vw, 9.5px);
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .mail-box{
+    width: clamp(7px, 1.2vw, 11px);
+    height: clamp(7px, 1.2vw, 11px);
+    border:1px solid var(--ink);
+    flex-shrink:0;
+    display:inline-block;
+  }
   .env-placeholder{
     color:var(--ink-soft);
     font-style:italic;
@@ -454,7 +474,7 @@
   /* ---------- print ---------- */
   #printOnly{ display:none; }
   @media print{
-    @page{ size: 22cm 11cm; margin:0; }
+    @page{ size: 23.5cm 10.5cm; margin:0; }
     html, body{
       margin:0; padding:0;
       -webkit-print-color-adjust: exact;
@@ -468,11 +488,11 @@
        so exactly one page per envelope is produced (no leftover-page repeat bug). */
     #printOnly{
       display:block !important;
-      width:22cm;
+      width:23.5cm;
       margin:0; padding:0;
     }
     #printOnly .envelope{
-      width:22cm; height:11cm;
+      width:23.5cm; height:10.5cm;
       max-width:none;
       box-shadow:none;
       border:none;
@@ -490,12 +510,16 @@
     #printOnly .env-recipient-zone{
       padding-bottom:1.4cm;
     }
-    #printOnly .env-sender, #printOnly .env-recipient, #printOnly .env-stamp-box{
+    #printOnly .env-sender, #printOnly .env-recipient{
       color:#000 !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
     #printOnly .env-sender{font-size:9.5pt; font-weight:500;}
+    #printOnly .env-top-row{
+      margin-top:-0.35cm;
+      margin-left:-0.35cm;
+    }
     #printOnly .env-logo{
       height:1.4cm;
       margin-right:0.2cm;
@@ -507,7 +531,22 @@
     #printOnly .env-recipient .r-name{font-size:13pt; font-weight:800;}
     #printOnly .env-recipient .r-addr{font-size:10pt; font-weight:500;}
     #printOnly .env-recipient .r-phone{font-size:8.5pt; font-weight:500; color:#000 !important;}
-    #printOnly .env-stamp-box{width:2.6cm; height:3.3cm; font-size:7pt; border-color:#000;}
+    #printOnly .env-mail-options{
+      right:0.6cm;
+      bottom:0;
+      gap:0.35cm;
+    }
+    #printOnly .mail-opt{
+      font-size:8pt;
+      color:#000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    #printOnly .mail-box{
+      width:0.32cm;
+      height:0.32cm;
+      border-color:#000;
+    }
   }
 </style>
 </head>
@@ -516,7 +555,7 @@
 <div class="app-shell">
 <header class="top">
   <h1>ระบบพิมพ์ซองจดหมาย</h1>
-  <div class="sub">CEO FACTORY (THAILAND) CO., LTD. — ENVELOPE DL 110×220mm</div>
+  <div class="sub">CEO FACTORY (THAILAND) CO., LTD. — ENVELOPE 105×235mm</div>
 </header>
 
 <nav class="tabs">
@@ -622,7 +661,7 @@
         <h2>ตัวอย่างซองจดหมาย</h2>
       </div>
       <div class="envelope-stage">
-        <div class="envelope-scale-note">ขนาดจริง 11 × 22 ซม. (ซอง DL 110×220 มม. — แสดงย่อสัดส่วนจริงบนหน้าจอ)</div>
+        <div class="envelope-scale-note">ขนาดจริง 10.5 × 23.5 ซม. (105×235 มม. — แสดงย่อสัดส่วนจริงบนหน้าจอ)</div>
         <div class="envelope" id="envelope">
           <div class="env-top-row">
             <div class="env-sender">
@@ -633,7 +672,6 @@
                 <div id="previewSenderContact">โทร. 096-478-7328 (แผนกบัญชีและการเงิน)</div>
               </div>
             </div>
-            <div class="env-stamp-box">แสตมป์</div>
           </div>
           <div class="env-recipient-zone">
             <div class="env-recipient">
@@ -642,6 +680,11 @@
                 <div class="env-placeholder">เลือกที่อยู่ผู้รับจากสมุดที่อยู่ หรือกรอกฟอร์มด้านซ้ายแล้วกด "บันทึกที่อยู่"</div>
               </div>
             </div>
+          </div>
+          <div class="env-mail-options">
+            <span class="mail-opt"><span class="mail-box"></span>EMS</span>
+            <span class="mail-opt"><span class="mail-box"></span>Registered mail</span>
+            <span class="mail-opt"><span class="mail-box"></span>Hand-delivered</span>
           </div>
         </div>
         <div class="preview-actions">
@@ -1033,7 +1076,6 @@ function envelopeMarkup(r){
             ${senderInfo.contact ? `<div>${escapeHtml(senderInfo.contact)}</div>` : ''}
           </div>
         </div>
-        <div class="env-stamp-box">แสตมป์</div>
       </div>
       <div class="env-recipient-zone">
         <div class="env-recipient">
@@ -1044,6 +1086,11 @@ function envelopeMarkup(r){
             ${r.phone ? `<div class="r-phone">โทร. ${escapeHtml(r.phone)}</div>` : ''}
           </div>
         </div>
+      </div>
+      <div class="env-mail-options">
+        <span class="mail-opt"><span class="mail-box"></span>EMS</span>
+        <span class="mail-opt"><span class="mail-box"></span>Registered mail</span>
+        <span class="mail-opt"><span class="mail-box"></span>Hand-delivered</span>
       </div>
     </div>
   `;
