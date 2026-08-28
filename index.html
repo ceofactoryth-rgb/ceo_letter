@@ -206,7 +206,7 @@
     margin-bottom:5px;
     font-weight:500;
   }
-  input[type=text], textarea{
+  input[type=text], textarea, select{
     width:100%;
     font-family:'Sarabun',sans-serif;
     font-size:15px;
@@ -217,8 +217,9 @@
     color:var(--ink);
     resize:vertical;
   }
+  select{cursor:pointer;}
   textarea{min-height:76px; line-height:1.5;}
-  input:focus, textarea:focus{
+  input:focus, textarea:focus, select:focus{
     outline:none;
     border-color:var(--accent);
     box-shadow:0 0 0 3px var(--accent-soft);
@@ -405,13 +406,6 @@
     max-width:78%;
     text-align:left;
   }
-  .env-recipient .to-label{
-    font-size: clamp(7.5px, 0.95vw, 10px);
-    color:var(--ink-faint);
-    letter-spacing:1px;
-    margin-bottom:3px;
-    font-family:'JetBrains Mono',monospace;
-  }
   .env-recipient .r-name{
     font-weight:700;
     font-size: clamp(10px, 1.7vw, 16px);
@@ -427,6 +421,12 @@
     font-size: clamp(8px, 1.15vw, 10.5px);
     margin-top:4px;
     color:var(--ink-soft);
+  }
+  .env-recipient .r-doctype{
+    font-size: clamp(8px, 1.15vw, 10.5px);
+    margin-top:4px;
+    color:var(--ink);
+    font-weight:600;
   }
   .env-mail-options{
     position:absolute;
@@ -527,10 +527,10 @@
       print-color-adjust: exact;
     }
     #printOnly .env-sender .co-name{font-weight:800;}
-    #printOnly .env-recipient .to-label{font-size:8pt; font-weight:700; color:#000 !important;}
     #printOnly .env-recipient .r-name{font-size:13pt; font-weight:800;}
     #printOnly .env-recipient .r-addr{font-size:10pt; font-weight:500;}
     #printOnly .env-recipient .r-phone{font-size:8.5pt; font-weight:500; color:#000 !important;}
+    #printOnly .env-recipient .r-doctype{font-size:8.5pt; font-weight:700; color:#000 !important;}
     #printOnly .env-mail-options{
       right:1.4cm;
       bottom:1.2cm;
@@ -590,6 +590,16 @@
             <label for="fNote">หมายเหตุ (ไม่บังคับ)</label>
             <input type="text" id="fNote" placeholder="เช่น ลูกค้าประจำ">
           </div>
+        </div>
+        <div class="field">
+          <label for="fDocType">ประเภทเอกสาร (ไม่บังคับ)</label>
+          <select id="fDocType">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="เอกสาร 50 ทวิ">เอกสาร 50 ทวิ</option>
+            <option value="ใบแจ้งหนี้">ใบแจ้งหนี้</option>
+            <option value="ใบเสร็จรับเงิน">ใบเสร็จรับเงิน</option>
+            <option value="ใบกำกับภาษี">ใบกำกับภาษี</option>
+          </select>
         </div>
         <div class="btn-row">
           <button class="btn" id="btnSave">บันทึกที่อยู่</button>
@@ -675,7 +685,6 @@
           </div>
           <div class="env-recipient-zone">
             <div class="env-recipient">
-              <div class="to-label">TO</div>
               <div id="envContent">
                 <div class="env-placeholder">เลือกที่อยู่ผู้รับจากสมุดที่อยู่ หรือกรอกฟอร์มด้านซ้ายแล้วกด "บันทึกที่อยู่"</div>
               </div>
@@ -749,6 +758,7 @@ const els = {
   fAddress: document.getElementById('fAddress'),
   fPhone: document.getElementById('fPhone'),
   fNote: document.getElementById('fNote'),
+  fDocType: document.getElementById('fDocType'),
   btnSave: document.getElementById('btnSave'),
   btnClear: document.getElementById('btnClear'),
   btnCancelEdit: document.getElementById('btnCancelEdit'),
@@ -906,6 +916,7 @@ function renderList(query){
       <div class="li-main">
         <div class="name">${escapeHtml(r.name)}</div>
         <div class="addr">${escapeHtml(r.address)}</div>
+        ${r.doc_type ? `<span class="log-badge" style="margin-top:5px;">${escapeHtml(r.doc_type)}</span>` : ''}
       </div>
       <div class="li-actions">
         <button class="icon-btn" data-action="edit" title="แก้ไข">✎</button>
@@ -954,6 +965,7 @@ function fieldsFromForm(){
     address: els.fAddress.value.trim(),
     phone: els.fPhone.value.trim() || null,
     note: els.fNote.value.trim() || null,
+    doc_type: els.fDocType.value || null,
   };
 }
 
@@ -994,6 +1006,7 @@ function startEdit(r){
   els.fAddress.value = r.address || '';
   els.fPhone.value = r.phone || '';
   els.fNote.value = r.note || '';
+  els.fDocType.value = r.doc_type || '';
   els.formTitle.textContent = 'แก้ไขที่อยู่ผู้รับ';
   els.btnCancelEdit.style.display = 'inline-block';
   els.fName.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -1011,6 +1024,7 @@ function clearForm(){
   els.fAddress.value = '';
   els.fPhone.value = '';
   els.fNote.value = '';
+  els.fDocType.value = '';
 }
 els.btnClear.addEventListener('click', () => { cancelEdit(); clearForm(); showStatus(els.formStatus,'','ok'); });
 
@@ -1042,6 +1056,7 @@ function renderEnvelope(r){
     <div class="r-name">${escapeHtml(r.name)}</div>
     <div class="r-addr">${escapeHtml(r.address)}</div>
     ${r.phone ? `<div class="r-phone">โทร. ${escapeHtml(r.phone)}</div>` : ''}
+    ${r.doc_type ? `<div class="r-doctype">${escapeHtml(r.doc_type)}</div>` : ''}
   `;
   els.btnPrint.disabled = false;
 }
@@ -1079,11 +1094,11 @@ function envelopeMarkup(r){
       </div>
       <div class="env-recipient-zone">
         <div class="env-recipient">
-          <div class="to-label">TO</div>
           <div>
             <div class="r-name">${escapeHtml(r.name)}</div>
             <div class="r-addr">${escapeHtml(r.address)}</div>
             ${r.phone ? `<div class="r-phone">โทร. ${escapeHtml(r.phone)}</div>` : ''}
+            ${r.doc_type ? `<div class="r-doctype">${escapeHtml(r.doc_type)}</div>` : ''}
           </div>
         </div>
       </div>

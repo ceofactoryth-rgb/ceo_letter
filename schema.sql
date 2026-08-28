@@ -10,9 +10,14 @@ create table if not exists public.recipients (
   address     text not null,           -- ที่อยู่ผู้รับ (หลายบรรทัดได้)
   phone       text,                    -- เบอร์โทร (ไม่บังคับ)
   note        text,                    -- หมายเหตุ (ไม่บังคับ)
+  doc_type    text,                    -- ประเภทเอกสาร (ไม่บังคับ) เช่น "ใบแจ้งหนี้"
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- สำหรับฐานข้อมูลที่เคยรัน schema.sql เวอร์ชันเก่าไปแล้ว (ยังไม่มีคอลัมน์ doc_type)
+-- คำสั่งนี้จะเพิ่มคอลัมน์ให้โดยไม่กระทบข้อมูลเดิม รันซ้ำได้อย่างปลอดภัย
+alter table public.recipients add column if not exists doc_type text;
 
 -- index สำหรับค้นหาชื่อ/ที่อยู่ให้เร็วขึ้น
 create index if not exists recipients_name_idx on public.recipients using gin (to_tsvector('simple', name));
